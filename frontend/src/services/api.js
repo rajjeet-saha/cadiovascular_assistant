@@ -23,11 +23,12 @@ const BASE_URL =
   "https://cardiovascular-care-backend.onrender.com";
 
 // Backup backend (second Render service sharing the same Firestore).
-// Paste the new service URL here after deploying it, e.g.:
-//   const BACKUP_BASE_URL = "https://cadio-backend-backup.onrender.com";
+// Deployed backup service — if the primary is asleep/dead, requests
+// automatically retry here and the header shows "Backend Connected · backup".
 // Also overridable at demo time with ?backup=<url> — no redeploy needed.
 const BACKUP_BASE_URL =
-  new URLSearchParams(window.location.search).get("backup") || "";
+  new URLSearchParams(window.location.search).get("backup") ||
+  "https://cadiovascular-assistant-1.onrender.com";
 
 // Currently active base (sticks to whichever backend answers)
 let activeBase = BASE_URL;

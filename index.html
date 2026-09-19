@@ -121,9 +121,8 @@
        landing page feels alive. Read-only, through the backend API. */
     (function () {
       var BASE = "https://cardiovascular-care-backend.onrender.com";
-      /* Backup backend (same Firestore). Paste its URL here once deployed;
-         the hub then fails over automatically if the primary is down. */
-      var BACKUP = "";
+      /* Backup backend (same Firestore data) — auto-failover if primary is down. */
+      var BACKUP = "https://cadiovascular-assistant-1.onrender.com";
       function set(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
 
       function beat() {

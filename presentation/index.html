@@ -709,6 +709,8 @@ h2 { font-size: clamp(1.4rem, 3.4vw, 2.5rem); font-weight: 800; margin-bottom: 1
 (function () {
   "use strict";
   var BASE = "https://cardiovascular-care-backend.onrender.com";
+  var BACKUP = "https://cadiovascular-assistant-1.onrender.com"; /* auto-failover */
+  var usingBackup = false;
   var dot = document.getElementById("live-dot");
   var txt = document.getElementById("live-txt");
   var bpmOut = document.getElementById("live-bpm");
@@ -740,6 +742,27 @@ h2 { font-size: clamp(1.4rem, 3.4vw, 2.5rem); font-weight: 800; margin-bottom: 1
       })
       .catch(function () {
         clearTimeout(t);
+        /* failover: one retry against the backup before demo mode */
+        if (!usingBackup) {
+          usingBackup = true; BASE = BACKUP;
+          txt.textContent = "backup…";
+          fetch(BASE + "/health-readings/P001")
+            .then(function (r) { return r.json(); })
+            .then(function (j) {
+              if (j && j.success && Array.isArray(j.data) && j.data.length) {
+                var n = j.data[0];
+                applyBpm(n.heartRate);
+                if (mkSp) { mkSp.textContent = n.spo2 + "%"; pkSp.textContent = n.spo2 + "%"; }
+                dot.className = "dot dot-g"; txt.textContent = "LIVE · backup";
+              } else {
+                dot.className = "dot dot-a"; txt.textContent = "demo mode";
+              }
+            })
+            .catch(function () {
+              dot.className = "dot dot-a"; txt.textContent = "demo mode";
+            });
+          return;
+        }
         dot.className = "dot dot-a"; txt.textContent = "demo mode";
       });
   }
