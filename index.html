@@ -121,6 +121,9 @@
        landing page feels alive. Read-only, through the backend API. */
     (function () {
       var BASE = "https://cardiovascular-care-backend.onrender.com";
+      /* Backup backend (same Firestore). Paste its URL here once deployed;
+         the hub then fails over automatically if the primary is down. */
+      var BACKUP = "";
       function set(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
 
       function beat() {
@@ -149,6 +152,14 @@
             set("live-alerts", active);
           });
         }).catch(function () {
+          /* Primary unreachable: fail over to backup if configured, else wake-retry. */
+          if (BACKUP && BASE !== BACKUP) {
+            BASE = BACKUP;
+            set("hub-conn", "Primary down — switched to backup backend");
+            document.getElementById("hub-dot").className = "dot dot-green";
+            setTimeout(tick, 1500);
+            return;
+          }
           /* Render free tier sleeps after ~15 min idle; first request wakes it (30-60 s). */
           waking = true;
           wakeAttempts++;

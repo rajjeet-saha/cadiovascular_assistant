@@ -8,7 +8,7 @@
  */
 
 /* global getPatient, getHealthReadings, getAlerts, acknowledgeAlert,
-          getMedications, getAppointments, PATIENT_ID,
+          getMedications, getAppointments, PATIENT_ID, getConnectionLabel,
           esc, formatTime, formatDateTime, timeAgo, activityLabel, vitalStatus,
           alertDisplayInfo, alertValueSummary,
           drawLineChart, drawEcg, prepareCanvas, AI */
@@ -39,9 +39,11 @@ function show(id, on) {
 function updateConn() {
   const dot = $("conn-dot");
   const text = $("conn-text");
+  const via = (typeof getConnectionLabel === "function" && getConnectionLabel() === "backup")
+    ? " · backup" : "";
   if (lastVitalsOk && lastAlertsOk) {
     dot.className = "dot dot-green";
-    text.textContent = "Backend Connected";
+    text.textContent = "Backend Connected" + via;
   } else if (!lastVitalsOk || !lastAlertsOk) {
     dot.className = "dot dot-red";
     text.textContent = "Waking backend (Render free tier) — auto-retrying…";

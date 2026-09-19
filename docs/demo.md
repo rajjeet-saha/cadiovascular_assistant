@@ -77,6 +77,34 @@ Academic prototype. Synthetic data only. Not a medical device.
 
 - **"Backend unavailable — retrying…"** → Render cold start; wait and it recovers
   automatically. First request of the day is slow.
+
+### Keeping the backend awake — two layers
+
+1. **GitHub Actions keep-alive** (already running in both repos) pings the
+   backend every 10 minutes. Free, but GitHub cron can run late (10–20 min),
+   which can leave an occasional sleep-gap.
+2. **UptimeRobot 5-minute pinger (recommended — closes the gap):**
+   - Sign up free at https://uptimerobot.com (email only)
+   - **Add New Monitor** → type **HTTP(s)**
+   - Friendly name: `Cardio Backend` → URL:
+     `https://cardiovascular-care-backend.onrender.com/`
+   - Interval: **5 minutes** → Create Monitor
+   - (Optional) add a second monitor for the backup backend URL
+   With a 5-minute ping, Render never reaches its 15-minute idle threshold,
+   so the backend stays warm permanently.
+
+### If the primary backend dies mid-demo (failover)
+
+- The frontend already supports a **backup backend**: if the primary is
+  unreachable (or returns 502/503/504), API calls automatically retry against
+  `BACKUP_BASE_URL` in `frontend/src/services/api.js`, and the header shows
+  **"Backend Connected · backup"**.
+- **Fastest switch without redeploying:** append `?backup=<backup-url>` to the
+  page URL, e.g.
+  `https://rajjeet-saha.github.io/cadiovascular_assistant/frontend/doctor-dashboard/?backup=https://your-backup.onrender.com`
+- The backup runs the same `backend/server.js` against the **same Firestore**,
+  so all demo data (patient, readings, alerts, medications, appointments) is
+  identical — switching is invisible to the demo.
 - **No alert appeared** → Check the simulator log entry: `alertsCreated` must list
   the alert. If HTTP failed, check `Content-Type: application/json` and the payload.
 - **Dashboard stale** → It polls every 4 s; the "Updated Xs ago" caption shows data

@@ -10,22 +10,46 @@
  *
  * Do NOT rename fields here. The contract is the source of truth.
  *
+ * FAILOVER: if the primary backend is unreachable (or returns 502/503/504)
+ * and a BACKUP_BASE_URL is configured, requests automatically retry against
+ * the backup and stick to whichever responds. See getConnectionLabel().
+ *
  * Academic prototype — synthetic demonstration data only.
  */
 
-// Base URL: production backend by default, ?backend= for local testing
+// Primary backend (production)
 const BASE_URL =
   new URLSearchParams(window.location.search).get("backend") ||
   "https://cardiovascular-care-backend.onrender.com";
 
+// Backup backend (second Render service sharing the same Firestore).
+// Paste the new service URL here after deploying it, e.g.:
+//   const BACKUP_BASE_URL = "https://cadio-backend-backup.onrender.com";
+// Also overridable at demo time with ?backup=<url> — no redeploy needed.
+const BACKUP_BASE_URL =
+  new URLSearchParams(window.location.search).get("backup") || "";
+
+// Currently active base (sticks to whichever backend answers)
+let activeBase = BASE_URL;
+
 const PATIENT_ID = "P001"; // development/demo patient
 
-/**
- * Low-level request helper.
- * Never throws for HTTP error statuses — returns a normal result object
- * so the UI can render "Backend unavailable"/error states without crashing.
- */
-async function request(method, path, body) {
+function otherBases() {
+  const list = [];
+  if (BASE_URL !== activeBase) list.push(BASE_URL);
+  if (BACKUP_BASE_URL && BACKUP_BASE_URL !== activeBase) list.push(BACKUP_BASE_URL);
+  return list;
+}
+
+/** Which backend is being used: "primary" | "backup" | "custom". */
+function getConnectionLabel() {
+  if (BACKUP_BASE_URL && activeBase === BACKUP_BASE_URL) return "backup";
+  if (activeBase === BASE_URL) return "primary";
+  return "custom";
+}
+
+/** Single attempt against one base. Never throws. */
+async function attempt(method, path, body, base) {
   try {
     const options = { method, headers: {} };
     if (body !== undefined) {
@@ -33,7 +57,7 @@ async function request(method, path, body) {
       options.body = JSON.stringify(body);
     }
 
-    const res = await fetch(BASE_URL + path, options);
+    const res = await fetch(base + path, options);
     let data = null;
     try {
       data = await res.json();
@@ -41,15 +65,41 @@ async function request(method, path, body) {
       data = null; // non-JSON response (e.g., proxy error page)
     }
 
-    return { ok: res.ok, status: res.status, data };
+    return {
+      ok: res.ok,
+      status: res.status,
+      data,
+      networkFail: [502, 503, 504].includes(res.status) // gateway down → try backup
+    };
   } catch (err) {
     return {
       ok: false,
       status: 0,
       data: null,
+      networkFail: true,
       error: "Backend unavailable (" + (err && err.message ? err.message : "network error") + ")"
     };
   }
+}
+
+/**
+ * Low-level request helper with automatic failover.
+ * Never throws for HTTP error statuses — returns a normal result object
+ * so the UI can render "Backend unavailable"/error states without crashing.
+ */
+async function request(method, path, body) {
+  const first = await attempt(method, path, body, activeBase);
+  if (!first.networkFail) return first;
+
+  // Primary failed at network level → try the other configured bases.
+  for (const base of otherBases()) {
+    const alt = await attempt(method, path, body, base);
+    if (!alt.networkFail) {
+      activeBase = base; // stick to the backend that answers
+      return alt;
+    }
+  }
+  return first; // all attempts failed
 }
 
 // ============================================================
@@ -158,10 +208,16 @@ async function checkConnection() {
   return request("GET", "/");
 }
 
+/** Base URL currently in use (for status displays). */
+function getActiveBaseUrl() {
+  return activeBase;
+}
+
 // CommonJS export so tests / scripts can require this file too
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     BASE_URL,
+    BACKUP_BASE_URL,
     PATIENT_ID,
     getPatient,
     createPatient,
@@ -174,6 +230,8 @@ if (typeof module !== "undefined" && module.exports) {
     createMedication,
     getAppointments,
     createAppointment,
-    checkConnection
+    checkConnection,
+    getConnectionLabel,
+    getActiveBaseUrl
   };
 }

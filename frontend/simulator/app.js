@@ -6,7 +6,7 @@
  * Academic prototype — synthetic demonstration data only.
  */
 
-/* global postHealthReading, sendSOS, checkConnection, esc, formatTime, activityLabel */
+/* global postHealthReading, sendSOS, checkConnection, getConnectionLabel, esc, formatTime, activityLabel */
 
 const device = { hr: 78, spo2: 98, battery: 85, sends: 0, activity: 0 };
 let contTimer = null;
@@ -142,7 +142,9 @@ async function checkBackend() {
   const dot = $("conn-dot"), text = $("conn-text");
   if (res.ok && res.data && res.data.success) {
     dot.className = "dot dot-green";
-    text.textContent = "Backend Connected";
+    text.textContent = typeof getConnectionLabel === "function" && getConnectionLabel() === "backup"
+      ? "Backend Connected · backup"
+      : "Backend Connected";
   } else {
     dot.className = "dot dot-red";
     text.textContent = "Backend unavailable";
