@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cardiovascular Care Assistant — Launch</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="./frontend/styles.css" />
+  <link rel="stylesheet" href="./frontend/src/services/animations.css" />
+  <link rel="stylesheet" href="./frontend/src/services/ai-theme.css" />
+  <style>
+    body { display: block; min-height: 100vh; }
+    .hub { max-width: 1080px; margin: 0 auto; padding: 28px 22px 46px; }
+    .hero-grid { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+    .hero-copy { flex: 1 1 420px; min-width: 0; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 22px; }
+    .tile {
+      display: block; background: #fff; border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; text-decoration: none; color: var(--text);
+      box-shadow: var(--shadow);
+    }
+    .tile h2 { margin: 10px 0 4px; font-size: 1.02rem; }
+    .tile p { margin: 0; color: var(--muted); font-size: .84rem; line-height: 1.5; }
+    .live-strip {
+      margin-top: 22px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    }
+    .live-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fff; border: 1px solid var(--border); border-radius: 999px;
+      padding: 8px 14px; font-size: .82rem; box-shadow: var(--shadow);
+    }
+    .bpm-num { font-weight: 800; font-size: 1.05rem; color: var(--critical); font-variant-numeric: tabular-nums; }
+    .notice {
+      margin-top: 26px; background: var(--warn-soft); border: 1px solid #fde68a;
+      color: #92400e; border-radius: 12px; padding: 12px 16px; font-size: .8rem; line-height: 1.55;
+    }
+    .footer-note { text-align: center; color: var(--muted); font-size: .75rem; margin-top: 26px; }
+    @media (max-width: 640px) {
+      .hero-heart { position: static; transform: none; }
+      .hub-hero { padding: 30px 22px; }
+    }
+  </style>
+</head>
+<body class="ai-dark">
+  <main class="hub">
+    <!-- ============ ANIMATED HERO ============ -->
+    <section class="hub-hero">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <h1 class="ai-gradient-text">Cardiovascular Care Assistant</h1>
+          <p>
+            Smart wearable-based cardiovascular monitoring — continuous vitals,
+            rule-based alerts, SOS escalation, and a live hospital dashboard.
+          </p>
+          <div class="hero-badges">
+            <span class="chip">Academic <b>Prototype</b></span>
+            <span class="chip">Synthetic data · <b>P001</b></span>
+            <span class="chip">Backend <b>Live on Render</b></span>
+          </div>
+          <div class="flow-strip" aria-hidden="true">
+            <span class="fnode">⌚ Wearable</span><span class="farrow">›</span>
+            <span class="fnode">📶 BLE</span><span class="farrow">›</span>
+            <span class="fnode">📱 Mobile</span><span class="farrow">›</span>
+            <span class="fnode">☁️ Backend</span><span class="farrow">›</span>
+            <span class="fnode">🏥 Dashboard</span>
+          </div>
+        </div>
+        <div class="hero-heart">
+          <span class="heartbeat heart-hero" id="hero-heart" title="Live demo heart rate">❤</span>
+          <div style="text-align:center; margin-top:6px; font-size:.78rem; color:#cbd5f5;">
+            live · <span id="hero-bpm">72</span> BPM
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ LIVE DEMO STRIP ============ -->
+    <div class="live-strip ai-reveal">
+      <span class="live-chip"><span class="dot dot-green" id="hub-dot"></span><span id="hub-conn">Checking backend…</span></span>
+      <span class="live-chip">❤️ <span class="bpm-num" id="live-bpm">—</span> BPM <span class="muted">(live)</span></span>
+      <span class="live-chip">🩸 SpO2 <b id="live-spo2">—</b>%</span>
+      <span class="live-chip">🔔 Active alerts <b id="live-alerts">—</b></span>
+    </div>
+
+    <!-- ============ TILES ============ -->
+    <div class="tiles ai-reveal">
+      <a class="tile" href="./frontend/doctor-dashboard/">
+        <span class="ico">🏥</span>
+        <h2>Doctor Dashboard</h2>
+        <p>Hospital monitoring: live vitals, synthetic ECG, alerts with acknowledgement, history graphs, medications, appointments, SOS.</p>
+      </a>
+      <a class="tile" href="./frontend/patient-app/">
+        <span class="ico">📱</span>
+        <h2>Patient App</h2>
+        <p>Mobile interface: vitals, ECG, alerts, emergency SOS button, medication and appointment reminders.</p>
+      </a>
+      <a class="tile" href="./frontend/simulator/">
+        <span class="ico">⌚</span>
+        <h2>Wearable Simulator</h2>
+        <p>Trigger demo scenarios: normal, high heart rate, low SpO2, low heart rate, SOS, continuous monitoring.</p>
+      </a>
+      <a class="tile" href="./docs/demo.md">
+        <span class="ico">🎬</span>
+        <h2>Demo Guide</h2>
+        <p>Step-by-step presentation script with narration, scenario table, Q&amp;A and troubleshooting.</p>
+      </a>
+    </div>
+
+    <div class="notice ai-reveal">
+      <b>Academic prototype.</b> Synthetic demonstration data only. Not a medical device,
+      not clinically validated, not diagnostic. Thresholds are prototype configuration
+      values, not medical advice. The hardware layer (ESP32 + MAX30102 + AD8232 + MPU6050 →
+      BLE) is simulated; the backend, API contract, and dashboards are the implemented system.
+    </div>
+    <p class="footer-note">Backend: cardiovascular-care-backend.onrender.com · Demo frontend: this page · Source: GitHub</p>
+  </main>
+
+  <script src="./frontend/src/services/ai-motion.js"></script>
+  <script>
+    /* Hub live strip: mirrors the demo patient's newest reading so the
+       landing page feels alive. Read-only, through the backend API. */
+    (function () {
+      var BASE = "https://cardiovascular-care-backend.onrender.com";
+      function set(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+
+      function beat() {
+        var bpm = parseInt(document.documentElement.style.getPropertyValue("--bpm"), 10) || 72;
+        set("hero-bpm", bpm); set("live-bpm", bpm);
+      }
+
+      function updateBpm(bpm) {
+        if (!bpm || bpm < 20 || bpm > 240) bpm = 72;
+        document.documentElement.style.setProperty("--bpm", bpm);
+        beat();
+      }
+
+      function tick() {
+        fetch(BASE + "/health-readings/P001").then(function (r) { return r.json(); }).then(function (j) {
+          if (!j || !j.success || !Array.isArray(j.data) || !j.data.length) return;
+          var n = j.data[0];
+          updateBpm(n.heartRate);
+          set("live-spo2", n.spo2);
+          set("hub-conn", "Backend Connected");
+          document.getElementById("hub-dot").className = "dot dot-green";
+          waking = false;
+          return fetch(BASE + "/alerts/P001").then(function (r) { return r.json(); }).then(function (a) {
+            var active = (a && a.success && Array.isArray(a.data))
+              ? a.data.filter(function (x) { return x.status === "active"; }).length : 0;
+            set("live-alerts", active);
+          });
+        }).catch(function () {
+          /* Render free tier sleeps after ~15 min idle; first request wakes it (30-60 s). */
+          waking = true;
+          wakeAttempts++;
+          set("hub-conn", "Waking backend (free tier)… attempt " + wakeAttempts);
+          document.getElementById("hub-dot").className = "dot dot-red";
+          setTimeout(tick, 3000); /* fast retry until it responds */
+        });
+      }
+
+      var waking = false, wakeAttempts = 0;
+      tick();
+      setInterval(function () { if (!waking) tick(); }, 5000);
+      /* keep-alive: while the hub is open, ping so the backend stays warm
+         for the rest of the demo session */
+      setInterval(function () { fetch(BASE + "/").catch(function () {}); }, 50000);
+      /* hero heart beats at the live BPM (animation-duration follows --bpm) */
+      setInterval(beat, 1000);
+      beat();
+    })();
+  </script>
+</body>
+</html>

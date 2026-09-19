@@ -1,0 +1,188 @@
+/* ============================================================
+   AI-Studio theme layer — Cardiovascular Care Assistant
+   Glassmorphism + aurora gradients + particles + reveals.
+   Pure CSS/JS — no dependencies. Prototype labeling preserved.
+   ============================================================ */
+
+/* ---------------- Aurora background ---------------- */
+
+.ai-dark, .ai-polish {
+  position: relative;
+}
+
+body.ai-dark {
+  background:
+    radial-gradient(1200px 700px at 12% -8%, rgba(59, 130, 246, 0.22), transparent 60%),
+    radial-gradient(1000px 600px at 88% 12%, rgba(225, 29, 72, 0.16), transparent 60%),
+    radial-gradient(900px 700px at 50% 110%, rgba(16, 185, 129, 0.12), transparent 60%),
+    linear-gradient(180deg, #070b16 0%, #0b1220 55%, #0a0f1d 100%);
+  background-attachment: fixed;
+  color: #e2e8f0;
+}
+
+body.ai-dark::before {
+  /* slow aurora drift */
+  content: "";
+  position: fixed;
+  inset: -20%;
+  background:
+    conic-gradient(from 120deg at 30% 30%, rgba(37, 99, 235, 0.14), transparent 30%),
+    conic-gradient(from 300deg at 70% 60%, rgba(225, 29, 72, 0.10), transparent 30%);
+  animation: aurora 18s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes aurora {
+  0%   { transform: rotate(0deg) scale(1); opacity: 0.8; }
+  100% { transform: rotate(14deg) scale(1.15); opacity: 1; }
+}
+
+/* everything visible sits above the aurora + particles */
+body.ai-dark > * { position: relative; z-index: 2; }
+#ai-particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+/* ---------------- Glass panels ---------------- */
+
+body.ai-dark .card,
+body.ai-dark .tile {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 32px rgba(2, 6, 23, 0.45);
+  color: #e2e8f0;
+}
+
+body.ai-dark .muted, body.ai-dark .chart-unit { color: #94a3b8; }
+body.ai-dark .chart-block { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.10); }
+body.ai-dark .chip { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); color: #e2e8f0; }
+body.ai-dark .skeleton, body.ai-dark .empty-state { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.14); color: #94a3b8; }
+body.ai-dark .med-item, body.ai-dark .appt-item { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.11); }
+body.ai-dark .topbar, body.ai-dark .app-top {
+  background: rgba(10, 15, 29, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+body.ai-dark .topbar h1, body.ai-dark .app-top h1 { color: #f1f5f9; }
+body.ai-dark .conn-text { color: #cbd5f5; }
+body.ai-dark .poll-note { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); color: #94a3b8; }
+body.ai-dark .vital { background: rgba(255,255,255,0.055); }
+body.ai-dark .vital-value { color: #f8fafc; }
+body.ai-dark .vital.ok { border-top-color: #34d399; }
+body.ai-dark .vital.warn { border-top-color: #fbbf24; background: rgba(251, 191, 36, 0.06); }
+body.ai-dark .vital.critical { border-top-color: #f87171; background: rgba(248, 113, 113, 0.08); }
+body.ai-dark .alert-item { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.10); }
+body.ai-dark .alert-item.critical { background: rgba(248, 113, 113, 0.10); border-color: rgba(248,113,113,0.35); }
+body.ai-dark .alert-item.sos { background: rgba(190, 18, 60, 0.16); border-color: rgba(251,113,133,0.4); }
+body.ai-dark .alert-item.acknowledged { background: rgba(251, 191, 36, 0.08); border-color: rgba(251,191,36,0.3); }
+body.ai-dark .footer { color: #64748b; }
+
+body.ai-dark .live-chip {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: #e2e8f0;
+  backdrop-filter: blur(10px);
+}
+body.ai-dark .live-chip .muted { color: #94a3b8; }
+body.ai-dark .notice {
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.35);
+  color: #fcd34d;
+}
+body.ai-dark .footer-note { color: #64748b; }
+
+/* patient app phone frame on dark */
+body.ai-dark .phone { background: rgba(10, 15, 29, 0.35); box-shadow: 0 0 70px rgba(2, 6, 23, 0.65); }
+body.ai-dark .pat-hero { background: linear-gradient(135deg, rgba(30, 58, 138, 0.75), rgba(29, 78, 216, 0.6)); backdrop-filter: blur(10px); }
+body.ai-dark .pat-hero .chip { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.24); }
+
+/* glow borders on hover */
+body.ai-dark .tile, body.ai-dark .card { transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease; }
+body.ai-dark .tile:hover, body.ai-dark .card:hover {
+  border-color: rgba(96, 165, 250, 0.55);
+  box-shadow: 0 0 0 1px rgba(96,165,250,0.25), 0 14px 44px rgba(37, 99, 235, 0.25);
+}
+
+/* ---------------- Gradient text + buttons ---------------- */
+
+.ai-gradient-text {
+  background: linear-gradient(92deg, #60a5fa 0%, #a78bfa 40%, #f472b6 75%, #fb7185 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-slide 6s ease infinite;
+}
+@keyframes gradient-slide {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+.ai-btn-glow {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(96,165,250,0.45);
+  background: linear-gradient(92deg, rgba(37,99,235,0.35), rgba(124,58,237,0.35));
+  color: #fff;
+}
+.ai-btn-glow::after {
+  /* shine sweep */
+  content: "";
+  position: absolute; top: 0; left: -80%;
+  width: 60%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.35), transparent);
+  transform: skewX(-20deg);
+  animation: shine 3.2s ease infinite;
+}
+@keyframes shine {
+  0%   { left: -80%; }
+  55%  { left: 130%; }
+  100% { left: 130%; }
+}
+
+/* ---------------- Particle canvas layer (light pages too) ---------------- */
+
+body.ai-polish #ai-particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+body.ai-polish > * { position: relative; z-index: 1; }
+body.ai-polish .topbar, body.ai-polish .app-top {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+/* ---------------- Scroll reveal ---------------- */
+
+.ai-reveal { opacity: 0; transform: translateY(22px) scale(0.99); }
+.ai-reveal.ai-in {
+  opacity: 1; transform: none;
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.3, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+/* ---------------- Count-up numerals ---------------- */
+
+.ai-count { font-variant-numeric: tabular-nums; }
+
+/* ---------------- Neon pulse ring for live chips ---------------- */
+
+.ai-live-ring { position: relative; }
+.ai-live-ring::after {
+  content: "";
+  position: absolute; inset: -3px;
+  border-radius: inherit;
+  border: 1px solid rgba(96,165,250,0.6);
+  animation: live-ring 2.2s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes live-ring {
+  0%   { opacity: 0.8; transform: scale(1); }
+  100% { opacity: 0;   transform: scale(1.18); }
+}
+
+/* ---------------- Reduced motion ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  body.ai-dark::before, .ai-gradient-text, .ai-btn-glow::after,
+  .ai-live-ring::after { animation: none !important; }
+  .ai-reveal { opacity: 1; transform: none; }
+}

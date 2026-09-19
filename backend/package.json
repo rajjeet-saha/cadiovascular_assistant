@@ -1,0 +1,23 @@
+{
+  "name": "cardiovascular-care-assistant",
+  "version": "1.0.0",
+  "description": "Cardiovascular Care Assistant — academic prototype. Backend (existing, Person 5) + wearable simulator + doctor dashboard + patient app + web simulator.",
+  "scripts": {
+    "serve": "node serve.js",
+    "demo": "node serve.js",
+    "simulator": "node simulator/simulator.js",
+    "sim:normal": "node simulator/simulator.js --scenario normal",
+    "sim:high": "node simulator/simulator.js --scenario high",
+    "sim:lowspo2": "node simulator/simulator.js --scenario lowspo2",
+    "sim:lowhr": "node simulator/simulator.js --scenario lowhr",
+    "sim:sos": "node simulator/simulator.js --scenario sos",
+    "sim:continuous": "node simulator/simulator.js --continuous 4",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.0",
+    "express": "^5.2.1",
+    "firebase-admin": "^14.4.0"
+  }
+}

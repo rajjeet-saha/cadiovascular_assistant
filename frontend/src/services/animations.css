@@ -1,0 +1,245 @@
+/* ============================================================
+   Motion layer — Cardiovascular Care Assistant
+   Academic prototype. Calm, clinical-grade motion: expressive
+   only where it communicates (live heartbeat, alerts, SOS, ECG).
+   JS feeds the live heart rate into --bpm, so the heartbeat
+   animation beats at the patient's actual BPM.
+   ============================================================ */
+
+:root {
+  --bpm: 72; /* live-updated from the newest backend reading */
+}
+
+/* ---------------- Heartbeat core ----------------
+   Double-thump "lub-dub" rhythm, duration driven by --bpm.
+   JS sets animation-duration: calc(60 / bpm * 1s).          */
+
+@keyframes heart-beat {
+  0%   { transform: scale(1); }
+  14%  { transform: scale(1.18); }   /* lub  */
+  28%  { transform: scale(1); }
+  42%  { transform: scale(1.12); }   /* dub  */
+  60%  { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes heart-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(220, 38, 38, 0.25)); }
+  14%      { filter: drop-shadow(0 0 14px rgba(220, 38, 38, 0.75)); }
+  42%      { filter: drop-shadow(0 0 9px rgba(220, 38, 38, 0.5)); }
+}
+
+.heartbeat {
+  display: inline-block;
+  transform-origin: center;
+  animation:
+    heart-beat calc(60 / var(--bpm) * 1s) ease-in-out infinite,
+    heart-glow calc(60 / var(--bpm) * 1s) ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Big decorative heart (hub hero, dashboards) */
+.heart-hero {
+  font-size: 3.2rem;
+  line-height: 1;
+  color: #e11d48;
+  filter: drop-shadow(0 6px 18px rgba(225, 29, 72, 0.35));
+}
+
+.heart-inline {
+  font-size: 1.35em;
+  vertical-align: -0.12em;
+  color: #e11d48;
+}
+
+/* HR number itself throbs with the heart */
+.vital.throbbing .vital-value {
+  animation: hr-throb calc(60 / var(--bpm) * 1s) ease-in-out infinite;
+  transform-origin: left bottom;
+  will-change: transform;
+}
+@keyframes hr-throb {
+  0%, 100% { transform: scale(1); }
+  14%      { transform: scale(1.045); }
+  42%      { transform: scale(1.02); }
+}
+
+/* ---------------- Alert entrances ---------------- */
+
+@keyframes alert-pop {
+  0%   { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  60%  { transform: translateY(1px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.alert-item, .log-entry { animation: alert-pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card { animation: slide-up 0.45s ease both; }
+.card:nth-child(2) { animation-delay: 0.05s; }
+.card:nth-child(3) { animation-delay: 0.1s; }
+.card:nth-child(4) { animation-delay: 0.15s; }
+
+/* ---------------- SOS radar ----------------
+   Concentric rings radiating from the SOS strip/button. */
+
+.sos-radar { position: relative; isolation: isolate; }
+.sos-radar::before,
+.sos-radar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(185, 28, 28, 0.55);
+  animation: radar 1.8s ease-out infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+.sos-radar::after { animation-delay: 0.9s; }
+
+@keyframes radar {
+  0%   { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0;   transform: scale(1.35); }
+}
+
+.sos-strip.sos-radar, .sos-btn.sos-radar { animation: none; } /* radar replaces flat pulse */
+.sos-btn.sos-radar { box-shadow: 0 0 24px rgba(185, 28, 28, 0.55), 0 6px 18px rgba(185, 28, 28, 0.35); }
+
+/* ---------------- ECG panel glow ---------------- */
+
+.ecg-panel { position: relative; overflow: hidden; }
+.ecg-panel::after {
+  /* soft scanline drifting across the monitor */
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: -30%;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.10), transparent);
+  animation: ecg-scan 4s linear infinite;
+  pointer-events: none;
+}
+@keyframes ecg-scan {
+  to { left: 110%; }
+}
+
+/* ---------------- Live connection dot ---------------- */
+
+.dot-green { animation: dot-breathe 2.4s ease-in-out infinite; }
+@keyframes dot-breathe {
+  0%, 100% { box-shadow: 0 0 0 3px var(--ok-soft); }
+  50%      { box-shadow: 0 0 0 6px var(--ok-soft); }
+}
+.dot-red { animation: dot-flash 1s ease-in-out infinite; }
+@keyframes dot-flash {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
+/* ---------------- Hub hero ---------------- */
+
+.hub-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  padding: 46px 34px;
+  color: #f8fafc;
+  background: linear-gradient(120deg, #0f172a 0%, #1e3a8a 45%, #7f1d1d 100%);
+  background-size: 220% 220%;
+  animation: hero-shift 14s ease infinite;
+  box-shadow: var(--shadow);
+}
+@keyframes hero-shift {
+  0%, 100% { background-position: 0% 40%; }
+  50%      { background-position: 100% 60%; }
+}
+
+.hub-hero::before {
+  /* faint decorative pulse marks behind the hero content */
+  content: "❤ ❤ ❤";
+  font-size: 8rem;
+  position: absolute;
+  right: -20px; bottom: -30px;
+  opacity: 0.08;
+  letter-spacing: 0.3em;
+  pointer-events: none;
+}
+
+.hub-hero h1 {
+  font-size: 2rem;
+  letter-spacing: 0.01em;
+  margin: 0 0 6px;
+}
+.hub-hero p { margin: 0; color: #cbd5f5; max-width: 640px; }
+
+.hero-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.hero-badges .chip { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.22); color: #fff; }
+.hero-badges .chip b { color: #fff; }
+
+.hero-heart {
+  position: absolute;
+  right: 42px; top: 50%;
+  transform: translateY(-50%);
+  user-select: none;
+}
+
+/* flow strip */
+.flow-strip {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  margin-top: 20px; font-size: 0.8rem; color: #e2e8f0;
+}
+.flow-strip .fnode {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 5px 11px; border-radius: 999px;
+  animation: slide-up 0.5s ease both;
+}
+.flow-strip .fnode:nth-child(odd) { animation-delay: 0.08s; }
+.flow-strip .farrow { opacity: 0.65; animation: arrow-nudge 1.6s ease-in-out infinite; }
+@keyframes arrow-nudge {
+  0%, 100% { transform: translateX(0); opacity: 0.5; }
+  50%      { transform: translateX(4px); opacity: 1; }
+}
+
+/* tile hover lift */
+.tiles .tile { transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; }
+.tiles .tile:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: 0 10px 28px rgba(29, 78, 216, 0.16);
+}
+.tiles .tile .ico { animation: ico-float 3.4s ease-in-out infinite; display: inline-block; }
+.tiles .tile:nth-child(2) .ico { animation-delay: 0.3s; }
+.tiles .tile:nth-child(3) .ico { animation-delay: 0.6s; }
+.tiles .tile:nth-child(4) .ico { animation-delay: 0.9s; }
+@keyframes ico-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+/* ---------------- Buttons / rows micro-interactions ---------------- */
+
+.btn { transition: transform 0.12s ease, filter 0.12s ease; }
+.btn:hover { filter: brightness(0.97); }
+.btn:active { transform: scale(0.96); }
+
+.sos-btn { transition: transform 0.15s ease; }
+.sos-btn:active { transform: scale(0.94); }
+
+.alert-item { transition: box-shadow 0.2s ease; }
+.alert-item:hover { box-shadow: 0 4px 14px rgba(15, 23, 42, 0.10); }
+
+/* -------- change guard: pause entrance anims on unchanged rerenders -------- */
+.no-anim .alert-item, .no-anim .log-entry { animation: none; }
+
+/* ---------------- Reduced motion ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .heartbeat, .vital.throbbing .vital-value, .hero-heart .heartbeat { animation: none !important; }
+  .sos-radar::before, .sos-radar::after,
+  .ecg-panel::after, .flow-strip .farrow,
+  .dot-green, .dot-red, .tiles .tile .ico { animation: none !important; }
+  .hub-hero { animation: none !important; }
+  .card, .alert-item, .log-entry, .flow-strip .fnode { animation: none !important; }
+}

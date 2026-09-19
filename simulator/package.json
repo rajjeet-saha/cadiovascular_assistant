@@ -1,0 +1,19 @@
+{
+  "name": "cardiovascular-wearable-simulator",
+  "version": "1.0.0",
+  "description": "Software simulator of the Cardiovascular Care Assistant wearable (ESP32 + MAX30102 + AD8232 + MPU6050). Sends contract-exact synthetic readings to the existing backend. Academic prototype, synthetic data only.",
+  "main": "simulator.js",
+  "scripts": {
+    "start": "node simulator.js",
+    "demo:normal": "node simulator.js --scenario normal",
+    "demo:high-hr": "node simulator.js --scenario high",
+    "demo:low-spo2": "node simulator.js --scenario lowspo2",
+    "demo:low-hr": "node simulator.js --scenario lowhr",
+    "demo:sos": "node simulator.js --scenario sos",
+    "demo:continuous": "node simulator.js --continuous 4"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "license": "MIT"
+}

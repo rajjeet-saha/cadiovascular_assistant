@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cardiovascular Care Assistant — Patient App</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../src/services/animations.css" />
+  <link rel="stylesheet" href="../src/services/ai-theme.css" />
+  <style>
+    body { background: #e2e8f0; }
+    .phone {
+      max-width: 430px; margin: 0 auto; min-height: 100vh;
+      background: var(--bg); box-shadow: 0 0 40px rgba(15,23,42,.12);
+      display: flex; flex-direction: column; padding-bottom: 24px;
+    }
+    .app-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: #fff; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .app-top h1 { font-size: .95rem; }
+    .stack { display: flex; flex-direction: column; gap: 12px; padding: 14px 14px 0; }
+    .vitals-row { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .vital-value { font-size: 1.7rem; }
+    .ecg-canvas { height: 120px; }
+    .sos-btn {
+      width: 100%; padding: 20px; border: none; border-radius: 16px;
+      background: var(--sos); color: #fff; font-size: 1.25rem; font-weight: 800;
+      letter-spacing: .1em; cursor: pointer; box-shadow: 0 6px 18px rgba(185,28,28,.35);
+    }
+    .sos-btn:disabled { opacity: .7; cursor: wait; }
+    .sos-note { text-align: center; font-size: .75rem; color: var(--muted); margin-top: 6px; }
+  </style>
+</head>
+<body class="ai-dark">
+  <!-- ACADEMIC PROTOTYPE — synthetic demonstration data only. -->
+  <div class="phone">
+    <div class="app-top">
+      <h1>❤ Cardio Care Assistant</h1>
+      <span class="conn-chip"><span id="conn-dot" class="dot dot-gray"></span>
+      <span id="conn-text" class="conn-text">Connecting…</span></span>
+    </div>
+
+    <div class="stack">
+      <!-- PATIENT HERO -->
+      <section id="pat-hero" class="card pat-hero">
+        <div class="ph-skeleton">Loading patient…</div>
+      </section>
+
+      <!-- ALERT STRIP -->
+      <section id="alert-strip" class="alert-strip hidden" aria-live="assertive"></section>
+
+      <!-- VITALS -->
+      <section class="vitals-row" aria-label="Current vitals">
+        <div class="card vital" id="vital-hr">
+          <span class="vital-label">Heart Rate</span>
+          <span class="vital-value" id="vital-hr-value">—</span>
+          <span class="vital-unit">BPM</span>
+          <span class="vital-meta" id="vital-hr-meta">Waiting…</span>
+        </div>
+        <div class="card vital" id="vital-spo2">
+          <span class="vital-label">SpO2</span>
+          <span class="vital-value" id="vital-spo2-value">—</span>
+          <span class="vital-unit">%</span>
+          <span class="vital-meta" id="vital-spo2-meta">Waiting…</span>
+        </div>
+        <div class="card vital" id="vital-activity">
+          <span class="vital-label">Activity</span>
+          <span class="vital-value vital-value-sm" id="vital-activity-value">—</span>
+          <span class="vital-unit">&nbsp;</span>
+          <span class="vital-meta" id="vital-activity-meta">0 Resting · 1 Walking · 2 Running</span>
+        </div>
+        <div class="card vital" id="vital-battery">
+          <span class="vital-label">Battery</span>
+          <span class="vital-value" id="vital-battery-value">—</span>
+          <span class="vital-unit">%</span>
+          <span class="vital-meta" id="vital-battery-meta">Wearable</span>
+        </div>
+      </section>
+
+      <!-- ECG -->
+      <section class="card ecg-panel">
+        <div class="panel-head">
+          <h2>Synthetic ECG Signal</h2>
+          <span id="ecg-updated" class="muted">—</span>
+        </div>
+        <canvas id="ecg-canvas" class="ecg-canvas"></canvas>
+        <p class="note">Synthetic waveform for visualization — not a diagnostic ECG.</p>
+      </section>
+
+      <!-- ALERTS -->
+      <section class="card alert-panel">
+        <div class="panel-head"><h2>Alerts</h2><span class="muted" id="alerts-count">—</span></div>
+        <div id="alerts-loading" class="skeleton">Loading alerts…</div>
+        <div id="alerts-empty" class="empty-state hidden">No alerts</div>
+        <div id="alerts-list"></div>
+      </section>
+
+      <!-- SOS -->
+      <section class="card sos-panel">
+        <button id="sos-btn" class="sos-btn sos-radar">SOS — EMERGENCY</button>
+        <p class="sos-note">Sends an emergency alert to your care team via the backend.</p>
+      </section>
+
+      <!-- MEDICATIONS -->
+      <section class="card">
+        <div class="panel-head"><h2>Medications</h2></div>
+        <div id="meds-loading" class="skeleton">Loading medications…</div>
+        <div id="meds-empty" class="empty-state hidden">No medications</div>
+        <div id="meds-list" class="med-list"></div>
+      </section>
+
+      <!-- APPOINTMENTS -->
+      <section class="card">
+        <div class="panel-head"><h2>Upcoming Appointments</h2></div>
+        <div id="appts-loading" class="skeleton">Loading appointments…</div>
+        <div id="appts-empty" class="empty-state hidden">No appointments</div>
+        <div id="appts-list" class="appt-list"></div>
+      </section>
+
+      <footer class="footer">
+        <p>Academic prototype · Synthetic data · Not a medical device</p>
+      </footer>
+    </div>
+  </div>
+
+  <script src="../src/services/ai-motion.js"></script>
+  <script src="../src/services/helpers.js"></script>
+  <script src="../src/services/charts.js"></script>
+  <script src="../src/services/api.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cardiovascular Care Assistant — Doctor Dashboard</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../src/services/animations.css" />
+  <link rel="stylesheet" href="../src/services/ai-theme.css" />
+</head>
+<body class="ai-dark">
+  <!-- ==========================================================
+       ACADEMIC PROTOTYPE — synthetic demonstration data only.
+       Not a medical device. Not clinically validated.
+       ========================================================== -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark heartbeat">❤</div>
+      <div>
+        <h1 class="ai-gradient-text">Cardiovascular Care Assistant</h1>
+        <p>Hospital Monitoring Dashboard · Academic Prototype (synthetic data)</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span id="conn-dot" class="dot dot-gray"></span>
+      <span id="conn-text" class="conn-text">Connecting…</span>
+      <span class="poll-note">Polling every 4 s</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- PATIENT HEADER -->
+    <section id="patient-header" class="card patient-header" aria-live="polite">
+      <div class="ph-skeleton">Loading patient…</div>
+    </section>
+
+    <!-- ACTIVE ALERT STRIP -->
+    <section id="alert-strip" class="alert-strip hidden" aria-live="assertive"></section>
+
+    <!-- MAIN GRID -->
+    <div class="grid-main">
+      <div class="col-main">
+        <!-- VITAL CARDS -->
+        <section class="vitals-row" aria-label="Current vitals">
+          <div class="card vital" id="vital-hr">
+            <span class="vital-label">Heart Rate</span>
+            <span class="vital-value" id="vital-hr-value">—</span>
+            <span class="vital-unit">BPM</span>
+            <span class="vital-meta" id="vital-hr-meta">Waiting for data…</span>
+          </div>
+          <div class="card vital" id="vital-spo2">
+            <span class="vital-label">SpO2</span>
+            <span class="vital-value" id="vital-spo2-value">—</span>
+            <span class="vital-unit">%</span>
+            <span class="vital-meta" id="vital-spo2-meta">Waiting for data…</span>
+          </div>
+          <div class="card vital" id="vital-activity">
+            <span class="vital-label">Activity</span>
+            <span class="vital-value vital-value-sm" id="vital-activity-value">—</span>
+            <span class="vital-unit">&nbsp;</span>
+            <span class="vital-meta" id="vital-activity-meta">From wearable motion</span>
+          </div>
+          <div class="card vital" id="vital-battery">
+            <span class="vital-label">Battery</span>
+            <span class="vital-value" id="vital-battery-value">—</span>
+            <span class="vital-unit">%</span>
+            <span class="vital-meta" id="vital-battery-meta">Wearable battery</span>
+          </div>
+        </section>
+
+        <!-- ECG PANEL -->
+        <section class="card ecg-panel">
+          <div class="panel-head">
+            <h2>Synthetic ECG Signal</h2>
+            <span id="ecg-updated" class="muted">Last updated: —</span>
+          </div>
+          <canvas id="ecg-canvas" class="ecg-canvas"></canvas>
+          <p class="note">
+            Prototype visualization of a synthetic waveform — not a diagnostic ECG.
+            One numeric ECG sample is sent per reading per the API contract.
+          </p>
+        </section>
+
+        <!-- HISTORY GRAPHS -->
+        <section class="card history-panel">
+          <div class="panel-head">
+            <h2>History</h2>
+            <span class="muted" id="history-count">0 readings</span>
+            <div class="range-picker" role="tablist" aria-label="History range">
+              <button class="range-btn active" data-range="30">Last 30</button>
+              <button class="range-btn" data-range="60">60</button>
+              <button class="range-btn" data-range="0">All</button>
+            </div>
+          </div>
+          <div class="charts-grid">
+            <div class="chart-block">
+              <div class="chart-title">Heart Rate <span class="chart-unit">BPM</span></div>
+              <canvas id="chart-hr" class="chart-canvas"></canvas>
+            </div>
+            <div class="chart-block">
+              <div class="chart-title">SpO2 <span class="chart-unit">%</span></div>
+              <canvas id="chart-spo2" class="chart-canvas"></canvas>
+            </div>
+            <div class="chart-block">
+              <div class="chart-title">Battery <span class="chart-unit">%</span></div>
+              <canvas id="chart-battery" class="chart-canvas"></canvas>
+            </div>
+            <div class="chart-block">
+              <div class="chart-title">Activity <span class="chart-unit">timeline</span></div>
+              <canvas id="chart-activity" class="chart-canvas"></canvas>
+            </div>
+          </div>
+          <p class="note">Graphs render backend-stored readings (contract returns newest-first; reversed to oldest→newest for plotting).</p>
+        </section>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col-side">
+        <section class="card alert-panel">
+          <div class="panel-head">
+            <h2>Alerts</h2>
+            <span class="muted" id="alerts-count">0 total</span>
+          </div>
+          <div id="alerts-loading" class="skeleton">Loading alerts…</div>
+          <div id="alerts-empty" class="empty-state hidden">No alerts</div>
+          <div id="alerts-list"></div>
+        </section>
+
+        <section class="card">
+          <div class="panel-head"><h2>Medications</h2></div>
+          <div id="meds-loading" class="skeleton">Loading medications…</div>
+          <div id="meds-empty" class="empty-state hidden">No medications</div>
+          <div id="meds-list" class="med-list"></div>
+        </section>
+
+        <section class="card">
+          <div class="panel-head"><h2>Appointments</h2></div>
+          <div id="appts-loading" class="skeleton">Loading appointments…</div>
+          <div id="appts-empty" class="empty-state hidden">No appointments</div>
+          <div id="appts-list" class="appt-list"></div>
+        </section>
+
+        <section class="card sos-panel">
+          <div class="panel-head"><h2>Emergency (SOS)</h2></div>
+          <div id="sos-loading" class="skeleton">Loading SOS events…</div>
+          <div id="sos-empty" class="empty-state hidden">No SOS events</div>
+          <div id="sos-list"></div>
+        </section>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>
+        Academic prototype · Synthetic patient data (P001) · Not a medical device ·
+        Thresholds are prototype configuration values, not medical advice.
+      </p>
+    </footer>
+  </main>
+
+  <script src="../src/services/ai-motion.js"></script>
+  <script src="../src/services/helpers.js"></script>
+  <script src="../src/services/charts.js"></script>
+  <script src="../src/services/api.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

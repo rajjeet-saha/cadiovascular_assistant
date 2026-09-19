@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wearable Simulator — Cardiovascular Care Assistant</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../src/services/animations.css" />
+  <link rel="stylesheet" href="../src/services/ai-theme.css" />
+  <style>
+    .sim-grid { display: grid; grid-template-columns: 340px minmax(0,1fr); gap: 16px; align-items: start; }
+    .scenarios { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .scn-btn {
+      border: 1px solid var(--border); background: #f8fafc; border-radius: 10px;
+      padding: 14px 10px; font-size: .85rem; font-weight: 650; cursor: pointer;
+      display: flex; flex-direction: column; gap: 4px; text-align: left;
+    }
+    .scn-btn small { color: var(--muted); font-weight: 500; }
+    .scn-btn:hover { border-color: var(--primary); background: var(--primary-soft); }
+    .scn-btn.sos { background: var(--sos); color: #fff; border-color: var(--sos); grid-column: 1 / -1; padding: 14px; font-size: 1rem; text-align: center; letter-spacing: .06em; }
+    .scn-btn.sos small { color: #fecaca; }
+    .scn-btn.cont-active { border-color: var(--ok); background: var(--ok-soft); }
+    .payload {
+      background: #0b1220; color: #a5f3fc; font-family: ui-monospace, Consolas, monospace;
+      font-size: .78rem; padding: 12px; border-radius: 10px; white-space: pre; overflow-x: auto;
+    }
+    #log { display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto; }
+    .log-entry { border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-size: .8rem; background: #fcfdff; }
+    .log-entry .t { color: var(--muted); font-size: .72rem; }
+    .log-entry.alert { border-left: 4px solid var(--critical); background: var(--critical-soft); }
+    .log-entry.sos { border-left: 4px solid var(--sos); background: #fff1f2; }
+    .log-entry.ok { border-left: 4px solid var(--ok); }
+    .log-entry b { font-weight: 700; }
+    .sim-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .dev-state { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    @media (max-width: 900px) { .sim-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="ai-dark">
+  <!-- ACADEMIC PROTOTYPE — synthetic demonstration data only. -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">⌚</div>
+      <div>
+        <h1>Wearable Simulator</h1>
+        <p>Virtual wristband · replaces ESP32 + sensors for the software demo</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span id="conn-dot" class="dot dot-gray"></span>
+      <span id="conn-text" class="conn-text">Connecting…</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="sim-grid">
+      <div class="col-main">
+        <section class="card">
+          <div class="sim-head">
+            <h2>Demo Scenarios</h2>
+            <span class="chip">Patient: <b>P001</b></span>
+          </div>
+          <div class="dev-state">
+            <span class="chip">HR: <b id="st-hr">78</b></span>
+            <span class="chip">SpO2: <b id="st-spo2">98</b></span>
+            <span class="chip">Battery: <b id="st-battery">85</b>%</span>
+            <span class="chip">Sends: <b id="st-sends">0</b></span>
+          </div>
+          <div class="scenarios">
+            <button class="scn-btn" data-scenario="normal">1 · Normal Reading<small>No alert expected</small></button>
+            <button class="scn-btn" data-scenario="high">2 · High Heart Rate<small>HR ~120 → ABNORMAL_HEART_RATE_HIGH</small></button>
+            <button class="scn-btn" data-scenario="lowspo2">3 · Low SpO2<small>SpO2 ~90 → LOW_SPO2</small></button>
+            <button class="scn-btn" data-scenario="lowhr">4 · Low Heart Rate<small>HR ~40 → ABNORMAL_HEART_RATE_LOW</small></button>
+            <button class="scn-btn sos" id="sos-btn">5 · TRIGGER SOS<small>POST /sos → SOS alert</small></button>
+            <button class="scn-btn" id="cont-btn">6 · Continuous Monitoring<small>Realistic reading every 4 s — click to start/stop</small></button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="panel-head"><h2>Next payload</h2><span class="muted">POST /health-readings</span></div>
+          <div id="payload" class="payload">Press a scenario button…</div>
+          <p class="note">Exact API_CONTRACT.md field names. Backend generates the timestamp. Continuous mode jitters values like a real device and drains battery slowly.</p>
+        </section>
+      </div>
+
+      <section class="card">
+        <div class="panel-head">
+          <h2>Transmission log</h2>
+          <button id="clear-log" class="range-btn">Clear</button>
+        </div>
+        <div id="log"><div class="empty-state">No transmissions yet</div></div>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <p>Academic prototype · Synthetic data only · Not a medical device · Thresholds are demo configuration, not medical advice</p>
+    </footer>
+  </main>
+
+  <script src="../src/services/ai-motion.js"></script>
+  <script src="../src/services/helpers.js"></script>
+  <script src="../src/services/api.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

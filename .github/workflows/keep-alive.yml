@@ -1,0 +1,33 @@
+name: Backend keep-alive
+
+# Render's free tier sleeps the backend after ~15 min without traffic.
+# This workflow pings it every 10 minutes so the demo is always instant.
+# NOTE: GitHub auto-disables repo schedules after 60 days without a repo
+# commit — push any commit (or re-enable the workflow in the Actions tab)
+# if that ever happens.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {} # manual "Run workflow" button for testing
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend (3 attempts, 75s timeout each)
+        run: |
+          for i in 1 2 3; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 75 \
+              https://cardiovascular-care-backend.onrender.com/ || echo "000")
+            echo "attempt $i: HTTP $CODE"
+            if [ "$CODE" = "200" ]; then
+              echo "Backend awake ✅"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::warning::Backend did not return 200 after 3 attempts (last: $CODE)"
