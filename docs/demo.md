@@ -95,16 +95,23 @@ Academic prototype. Synthetic data only. Not a medical device.
 
 ### If the primary backend dies mid-demo (failover)
 
-- The frontend already supports a **backup backend**: if the primary is
-  unreachable (or returns 502/503/504), API calls automatically retry against
-  `BACKUP_BASE_URL` in `frontend/src/services/api.js`, and the header shows
-  **"Backend Connected · backup"**.
-- **Fastest switch without redeploying:** append `?backup=<backup-url>` to the
+- A **backup backend is deployed and pre-wired**:
+  `https://cadiovascular-assistant-1.onrender.com` (same `server.js`, same
+  Firestore → identical demo data). If the primary is unreachable (or returns
+  502/503/504), API calls automatically retry against it and the header shows
+  **"Backend Connected · backup"**. The hub and presentation deck fail over too.
+- ⚠️ **First-time setup of the backup (once):** if its endpoints return
+  `{"success":false,"message":"Internal server error"}`, the Render service is
+  missing its Firebase environment variables. In the Render dashboard →
+  **Environment** → add `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`,
+  `FIREBASE_PRIVATE_KEY` (copy values from the primary service; the private key
+  keeps its `\n` sequences) → Save (auto-redeploys). Verify:
+  `GET /patients/P001` returns `"success": true`.
+- **Fastest manual switch without redeploying:** append `?backup=<url>` to the
   page URL, e.g.
-  `https://rajjeet-saha.github.io/cadiovascular_assistant/frontend/doctor-dashboard/?backup=https://your-backup.onrender.com`
-- The backup runs the same `backend/server.js` against the **same Firestore**,
-  so all demo data (patient, readings, alerts, medications, appointments) is
-  identical — switching is invisible to the demo.
+  `https://rajjeet-saha.github.io/cadiovascular_assistant/frontend/doctor-dashboard/?backup=https://cadiovascular-assistant-1.onrender.com`
+- **Optional second UptimeRobot monitor:** same steps as above with the backup
+  URL, so both services stay warm.
 - **No alert appeared** → Check the simulator log entry: `alertsCreated` must list
   the alert. If HTTP failed, check `Content-Type: application/json` and the payload.
 - **Dashboard stale** → It polls every 4 s; the "Updated Xs ago" caption shows data
